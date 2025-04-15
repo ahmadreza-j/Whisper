@@ -9,18 +9,20 @@
   RUN git clone https://github.com/ggerganov/whisper.cpp.git
   
   WORKDIR /build/whisper.cpp
-  RUN make || (echo "❌ Make failed" && ls -l && exit 1)
+  RUN make && chmod +x main
   
   RUN mkdir -p models && \
       curl -L -o models/ggml-small.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
   
-  # --- Stage 2: Final Node.js API ---
+  ### --- Stage 2: Final Node.js API ---
   FROM node:18-slim
   
   WORKDIR /app
   
+  # فقط ffmpeg نیاز داریم
   RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
   
+  # فقط فایل‌های نهایی ساخته‌شده رو کپی کن
   COPY --from=whisper-builder /build/whisper.cpp ./whisper.cpp
   
   COPY package*.json ./
