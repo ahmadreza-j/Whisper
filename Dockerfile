@@ -1,36 +1,19 @@
-### --- Stage 1: Build whisper.cpp ---
-  FROM ubuntu:22.04 as whisper-builder
+FROM python:3.10-slim
 
-  RUN apt-get update && apt-get install -y \
-    build-essential cmake curl git && \
-    rm -rf /var/lib/apt/lists/*
-  
-  WORKDIR /build
-  RUN git clone https://github.com/ggerganov/whisper.cpp.git
-  
-  WORKDIR /build/whisper.cpp
-  RUN make && chmod +x main
-  
-  RUN mkdir -p models && \
-      curl -L -o models/ggml-small.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
-  
-  ### --- Stage 2: Final Node.js API ---
-  FROM node:18-slim
-  
-  WORKDIR /app
-  
-  # فقط ffmpeg نیاز داریم
-  RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
-  
-  # فقط فایل‌های نهایی ساخته‌شده رو کپی کن
-  COPY --from=whisper-builder /build/whisper.cpp ./whisper.cpp
-  
-  COPY package*.json ./
-  RUN npm install
-  COPY server.js .
-  
-  RUN mkdir uploads
-  
-  EXPOSE 5000
-  CMD ["node", "server.js"]
-  
+WORKDIR /python-docker
+
+COPY requirements.txt requirements.txt
+
+RUN apt-get update && apt-get install git -y
+
+RUN pip install -r requirements.txt
+
+RUN pip install "git+https://github.com/openai/whisper.git"
+
+RUN apt-get update && apt-get install -y ffmpeg
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["uvicorn", "fastapi_app:app", "--host", "0.0.0.0", "--port", "8000"]
