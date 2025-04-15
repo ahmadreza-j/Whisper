@@ -6,7 +6,7 @@ import torch
 from tempfile import NamedTemporaryFile
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-model = whisper.load_model("base", device=DEVICE)
+model = whisper.load_model("small", device=DEVICE)
 
 app = FastAPI()
 
