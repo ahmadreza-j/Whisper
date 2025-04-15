@@ -3,7 +3,6 @@ const multer = require('multer');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -23,7 +22,7 @@ app.post('/transcribe', upload.single('file'), async (req, res) => {
     if (code !== 0) return res.status(500).json({ error: 'Transcription failed' });
 
     fs.readFile(path.join('whisper.cpp', outputTxt), 'utf8', (err, data) => {
-      fs.unlinkSync(file.path); // پاک کردن فایل آپلودشده
+      fs.unlinkSync(file.path); // پاک‌سازی فایل
       if (err) return res.status(500).json({ error: 'Output not found' });
       res.json({ text: data.trim() });
     });
