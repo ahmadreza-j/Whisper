@@ -1,1 +1,1 @@
-# Whisper
+# Local Whisper
