@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  whisper-node:
+    build: .
+    container_name: whisper-node
+    ports:
+      - "5000:5000"
+    volumes:
+      - whisper_uploads:/app/uploads
+    restart: unless-stopped
+
+volumes:
+  whisper_uploads:
