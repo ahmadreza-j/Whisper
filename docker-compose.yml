@@ -1,14 +1,23 @@
 version: '3.8'
-
 services:
-  whisper-node:
-    build: .
-    container_name: whisper-node
-    ports:
-      - "5000:5000"
+  whisper:
+    image: rhasspy/whisper-cpp
+    container_name: whisper
     volumes:
-      - whisper_uploads:/app/uploads
+      - whisper_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whisper.rule=Host(`whisper1.amrotak.nl`)"
+      - "traefik.http.routers.whisper.entrypoints=websecure"
+      - "traefik.http.routers.whisper.tls.certresolver=myresolver"
+      - "traefik.http.services.whisper.loadbalancer.server.port=8080"
     restart: unless-stopped
+    networks:
+      - traefik
 
 volumes:
-  whisper_uploads:
+  whisper_data:
+
+networks:
+  traefik:
+    external: true
